@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bookkit algo2comment
-// @namespace    https://github.com/vgresak/bookkit_algo2comment
-// @version      0.1.0
+// @namespace    https://github.com/vgresak/bookkit-algo2comment
+// @version      0.1.1
 // @description  Creates button to copy uuCmd algorithm into clipboard with proper formatting.
 // @author       Viktor Grešák
 // @match        https://*/uu-bookkitg01-main/*
@@ -16,18 +16,28 @@
 })();
 
 function initPage() {
-    if (!isPageReady() || $("#algo2comment-btn").length) {
-        console.log("page not ready or already initialized");
+    if (isInitialized() || !isPageReady()) {
         return;
     }
-    console.log("page ready");
     $(".uu-uuapp-designkit.uu-uuapp-designkit-algorithm .uup-bricks-infoicon-header").after(addCopyBtn);
 };
 
+function isInitialized() {
+    return $("#algo2comment-btn").length;
+}
+
 function isPageReady() {
-    const hasAlgorithm = $(".uu-uuapp-designkit.uu-uuapp-designkit-algorithm").length;
-    return hasAlgorithm;
+    return $(".uu-uuapp-designkit.uu-uuapp-designkit-algorithm").length;
 };
+
+function addCopyBtn() {
+    const btn = $("<a id=\"algo2comment-btn\" class=\"uu5-bricks-button uu5-bricks-button-m uu5-bricks-button-filled\">Copy</a>");
+    btn.click(async (e) => {
+        e.preventDefault();
+        await copyTextToClipboard(getCommentFromAlgorithm());
+    });
+    return btn;
+}
 
 async function copyTextToClipboard(text) {
     const copyInput = $(`<textarea id="copyInput"/>`);
@@ -40,32 +50,24 @@ async function copyTextToClipboard(text) {
     copyInput.remove();
 }
 
-function addCopyBtn() {
-    const btn = $("<a id=\"algo2comment-btn\" class=\"uu5-bricks-button uu5-bricks-button-m uu5-bricks-button-filled\">Copy</a>");
-    btn.click(async (e) => {
-        e.preventDefault();
-        await copyTextToClipboard(getCommentFromAlgorithm());
+function getCommentFromAlgorithm() {
+    const steps = $(".uu-uuapp-designkit.uu-uuapp-designkit-algorithm .uu-uuapp-designkit-block>.uu-uuapp-designkit-statement .uu-uuapp-designkit-common-statement-labels>span.uu5-bricks-span");
+    let result = "";
+    steps.each(function () {
+        result += getCommentFromStep($(this));
     });
-    return btn;
+    return result;
 }
 
-function getCommentFromAlgorithm() {
-    const statements = $(".uu-uuapp-designkit.uu-uuapp-designkit-algorithm .uu-uuapp-designkit-block>.uu-uuapp-designkit-statement .uu-uuapp-designkit-common-statement-labels>span.uu5-bricks-span");
-    let result = "";
-
-    statements.each(function () {
-        const step = $(this).text();
-        const stepContent = $(this).closest(".uu-uuapp-designkit-common-statement-main-content");
-        const conditionText = stepContent.find(".uu-uuapp-designkit-common-statement-condition>.uu-uuapp-designkit-common-statement-condition-wrapper>.uu5-common-div>.uu5-common-div").text();
-        const stepText = stepContent.find(".uu-uuapp-designkit-common-statement-desc>.uu5-common-div").text();
-        if (conditionText) {
-            result += `// ${step} If ${conditionText}\n// ${stepText}\n`;
-        } else {
-            result += `// ${step} ${stepText}\n`;
-        }
-
-    });
-
-    return result;
+function getCommentFromStep(stepElem){
+    const stepNumber = stepElem.text();
+    const stepContent = stepElem.closest(".uu-uuapp-designkit-common-statement-main-content");
+    const conditionText = stepContent.find(".uu-uuapp-designkit-common-statement-condition>.uu-uuapp-designkit-common-statement-condition-wrapper>.uu5-common-div>.uu5-common-div").text();
+    const stepDescription = stepContent.find(".uu-uuapp-designkit-common-statement-desc>.uu5-common-div").text();
+    if (conditionText) {
+        return `// ${stepNumber} If ${conditionText}\n// ${stepDescription}\n`;
+    } else {
+        return `// ${stepNumber} ${stepDescription}\n`;
+    }
 }
 
