@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bookkit algo2comment
 // @namespace    https://github.com/vgresak/bookkit-algo2comment
-// @version      0.1.1
+// @version      0.1.2
 // @description  Creates button to copy uuCmd algorithm into clipboard with proper formatting.
 // @author       Viktor Grešák
 // @match        https://*/uu-bookkitg01-main/*
@@ -32,9 +32,17 @@ function isPageReady() {
 
 function addCopyBtn() {
     const btn = $("<a id=\"algo2comment-btn\" class=\"uu5-bricks-button uu5-bricks-button-m uu5-bricks-button-filled\">Copy</a>");
+    let feedbackInProgress = false;
     btn.click(async (e) => {
         e.preventDefault();
         await copyTextToClipboard(getCommentFromAlgorithm());
+        if (!feedbackInProgress) {
+            feedbackInProgress = true;
+            $("#algo2comment-btn").html("Copied!").delay(1000).fadeOut(500, function () {
+                $(this).html("Copy").fadeIn(500);
+                feedbackInProgress = false;
+            });
+        }
     });
     return btn;
 }
@@ -59,7 +67,7 @@ function getCommentFromAlgorithm() {
     return result;
 }
 
-function getCommentFromStep(stepElem){
+function getCommentFromStep(stepElem) {
     const stepNumber = stepElem.text();
     const stepContent = stepElem.closest(".uu-uuapp-designkit-common-statement-main-content");
     const conditionText = stepContent.find(".uu-uuapp-designkit-common-statement-condition>.uu-uuapp-designkit-common-statement-condition-wrapper>.uu5-common-div>.uu5-common-div").text();
