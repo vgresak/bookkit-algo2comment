@@ -5,6 +5,7 @@
 // @description  Creates button to copy uuCmd algorithm into clipboard with proper formatting.
 // @author       Viktor Grešák
 // @match        https://*/uu-bookkitg01-main/*
+// @match        https://*/uu-bookkit-maing01/*
 // @require      http://code.jquery.com/jquery-2.1.4.min.js
 // @require      https://code.jquery.com/ui/1.12.1/jquery-ui.js
 // @run-at       document-end
