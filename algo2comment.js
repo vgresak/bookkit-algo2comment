@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Bookkit algo2comment
 // @namespace    https://github.com/vgresak/bookkit-algo2comment
-// @version      0.1.2
+// @version      0.1.3
 // @description  Creates button to copy uuCmd algorithm into clipboard with proper formatting.
 // @author       Viktor Grešák
 // @match        https://*/uu-bookkitg01-main/*
